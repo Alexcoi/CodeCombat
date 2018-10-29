@@ -1,0 +1,64 @@
+// Цель состоит в том, чтобы выжить и сохранить рудники в течение 30 секунд
+
+function chooseStrategy() {
+var enemies = hero.findEnemies();
+var nearest = hero.findNearest(enemies);
+//if(hero.time<2) hero.summon("peasant");
+// Если можешь призвать всадника грифонов, верни "griffin-rider"
+if(hero.gold>hero.costOf("griffin-rider")) return "griffin-rider";
+// Если на твоей стороне есть всадник клыка, верни "fight-back"
+else if(nearest&&nearest.pos.x<38){
+if(nearest.type == "fangrider") return "fight-back";
+}
+// Иначе верни "collect-coins"
+else return "collect-coins";
+}
+
+function commandAttack() {
+// Дай своим всадникам грифонов команду атаковать огров.
+var griffins = hero.findByType("griffin-rider");
+for(var i=0;i<griffins.length;i++){
+var griffin = griffins[i];
+var enemies = griffin.findEnemies();
+for(var j=0;j<enemies.length;j++){
+var enemy = enemies[i];
+if(enemy&&enemy.type != "fangrider") hero.command(griffin, "attack", enemy);
+else if(enemy) continue;
+}
+}
+
+}
+
+function pickUpCoin() {
+// Собери монеты
+var coin = hero.findNearestItem();
+hero.move(coin.pos);
+}
+
+//function pickpeascoin(){
+//var peasants = hero.findByType("peasant");
+// var peasant = peasants[0];
+// var coinpeasant = peasant.findNearestItem();
+// hero.command(peasant, "move", coinpeasant.pos);
+// }
+function heroAttack() {
+// Герой должен атаковать всадников клыка, пересекающих минное поле.
+var enemies = hero.findEnemies();
+var nearest = hero.findNearest(enemies);
+if(nearest&&nearest.pos.x<38){
+while(nearest.health>0){
+if(hero.isReady("bash")) hero.bash(nearest);
+else hero.attack(nearest);
+}
+}
+}
+
+while(true) {
+commandAttack();
+var strategy = chooseStrategy();
+// Вызывай функции в зависимости от текущей ситуации.
+if(strategy == "griffin-rider") hero.summon("griffin-rider");
+else if(strategy == "fight-back") heroAttack();
+else if(strategy == "collect-coins") pickUpCoin();
+//pickpeascoin();
+}
