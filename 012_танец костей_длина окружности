@@ -1,0 +1,16 @@
+// Не разозли скелетов в течение 60 с.
+
+// Эта функция пригодится для сравнения вещественных чисел.
+function almostEqual(a, b) {
+    return Math.abs(a - b) < 1;
+}
+
+while(true) {
+    var skeleton = hero.findNearestEnemy();
+    // Найди радиус окружности скелетов.
+    var circle = 2*Math.PI*hero.distanceTo(skeleton);
+    // Если длина окружности почти равна 100:
+    if(almostEqual(circle,100))
+        // Скажи, спой, прокричи что-нибудь (один раз).
+        hero.say("Good skeleton!");
+}
