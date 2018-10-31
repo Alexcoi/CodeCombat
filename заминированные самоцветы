@@ -1,0 +1,25 @@
+// Собери 4 самоцвета. Не трогай камни во внутреннем круге.
+
+// Радиус круга с ловушками.
+var innerRadius = hero.distanceTo(hero.findNearestItem());
+
+// Эта функция проверяет, что `a` определённо больше `b`.
+function definitelyGreater(a, b) {
+    return a > b + 0.5;
+}
+
+var center = {"x": 40, "y": 34};
+var gems = hero.findItems();
+
+// Перебери все самоцветы:
+for (var i=0;i<gems.length;i++){
+    var gem = gems[i];    
+    // Используй `definitelyGreater`, чтобы проверить расстояние до самоцвета:
+    // больше, чем внутренний радиус:
+    if(definitelyGreater(hero.distanceTo(gem),innerRadius)){
+        // Собери самоцвет.
+        hero.moveXY(gem.pos.x, gem.pos.y);
+        // Вернись к центру.
+        hero.moveXY(center.x, center.y);
+    }
+}
