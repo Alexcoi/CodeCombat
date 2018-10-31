@@ -1,0 +1,17 @@
+// Победи всех йети.
+
+// Избранный может оглушить йети своим криком.
+var chosen = hero.findFriends()[0];
+
+// Сила крика должна быть равна площади окружности.
+var radius = chosen.distanceTo(chosen.findNearestEnemy());
+// Площадь окружности можно вычислить по формуле:
+var area = radius * radius * Math.PI;
+// Скажи площадь Избранному.
+hero.say(area);
+// Не сдавайся! В бой!
+while(true) {
+    var yeti = hero.findByType("yeti");
+  var enemy = hero.findNearest(yeti);
+if(enemy) hero.attack(enemy);  
+}
