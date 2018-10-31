@@ -1,0 +1,99 @@
+// Твоя цель - защитить Рейнальдо.
+
+// Найди паладина с самым низким здоровьем.
+function lowestHealthPaladin() {
+    var lowestHealth = 99999;
+    var lowestFriend = null;
+    var friends = hero.findFriends();
+    for (var f = 0; f < friends.length; f++) {
+        var friend = friends[f];
+        if (friend.type != "paladin") {
+            continue;
+        }
+        if (friend.health < lowestHealth && friend.health < friend.maxHealth) {
+            lowestHealth = friend.health;
+            lowestFriend = friend;
+        }
+    }
+    return lowestFriend;
+}
+function commandPaladin(paladin) {
+// Вылечи паладина с низким здоровьем, используя `lowestHealthPaladin()`
+    // Ты можешь использовать `paladin.canCast("heal")` и `command(paladin, "cast", "heal", target)`
+    // Паладины также владеют щитом: `command(paladin, "shield")`
+    // И не забудь, что они тоже умеют атаковать!
+    var enemy = paladin.findNearestEnemy();
+    var injurePaladin = lowestHealthPaladin();
+    var position = {
+            x: paladin.pos.x,
+            y: paladin.pos.y
+        };
+    var castable = paladin.canCast("heal");
+    if (enemy) {
+        var warlock = hero.findNearest(hero.findByType("warlock"));
+        if (paladin.health < paladin.maxHealth / 4) {
+            hero.command(paladin, "shield");
+        } else if (injurePaladin && castable) {
+            hero.command(paladin, "cast", "heal", injurePaladin);
+        } else if (enemy.type!="warlock")
+            hero.command(paladin, "attack", enemy);
+    }
+     else {
+        hero.command(paladin, "move", position);
+    }
+}
+function commandPeasant(peasant) {
+    var coins = peasant.findItems();
+    var coin = null;
+    coin = findBestCoin(coins, peasant);
+    if (coin && coin.pos.y > 41) {
+        if (peasant.id == "Hector") {
+            hero.command(peasant, "move", coin.pos);
+        }
+    } else if (coin && coin.pos.y < 41) {
+        if (peasant.id == "Rose") {
+            hero.command(peasant, "move", coin.pos);
+        }
+    }
+    function findBestCoin(coins, friend) {
+        var bestCoin = null;
+        var bestValue = 0;
+        for (var i = 0; i < coins.length; i++) {
+            var coin = coins[i];
+            var bestestCoin = valueOverDistance(coin);
+            if (bestestCoin > bestValue) {
+                bestCoin = coin;
+                bestValue = bestestCoin;
+            }
+        }
+        function valueOverDistance(coin) {
+            return coin.value / friend.distanceTo(coin);
+        }
+        return bestCoin;
+    }
+}
+function commandGriffin(griffin) {
+    var enemy = griffin.findNearestEnemy();
+    if (enemy&&enemy.type!="warlock") hero.command(griffin, "attack", enemy);       
+}
+function commandFriends() {
+// Управляй своими союзниками.
+    var friends = hero.findFriends();
+    for (var i = 0; i < friends.length; i++) {
+        var friend = friends[i];
+        if (friend.type == "peasant") {
+            commandPeasant(friend);
+        } else if (friend.type == "griffin-rider") {
+            commandGriffin(friend);
+        } else if (friend.type == "paladin") {
+            commandPaladin(friend);
+        }
+    }
+}
+while (true) {
+    commandFriends();
+    // Призывай наездников!
+    if (hero.gold >= hero.costOf("griffin-rider")) {
+        hero.summon("griffin-rider");
+    }
+}
