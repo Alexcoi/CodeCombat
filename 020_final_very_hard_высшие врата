@@ -1,0 +1,259 @@
+function commandDef(point){
+var friends = hero.findFriends();
+	if(friends){
+		for(var i=0;i<friends.length;i++){
+			hero.command(friends[i],"defend",point);
+		}
+	}
+}
+function commandAttack(){
+var friends = hero.findFriends();
+if(friends){
+for(var i=0;i<friends.length;i++){
+		var friend = friends[i];
+		var nearest = friend.findNearestEnemy();
+			if(friend.type!="paladin" && nearest && nearest.type!="door"){
+				hero.command(friend, "attack", nearest);
+			}
+			else if(friend.type !="paladin"&&hero.findNearestEnemy()&&hero.findNearestEnemy().type!="door"){
+				hero.command(friend,"attack",hero.findNearestEnemy());
+			}
+			else if(friend.type!= "paladin"){
+				hero.command(friend,"defend",hero);
+			}
+		}
+	}
+}
+
+function commandAttackWarlock(){
+	var friends = hero.findFriends();
+	if(friends){
+		for(var i=0;i<friends.length;i++){
+			var friend = friends[i];
+			var nearest = friend.findNearestEnemy();
+			var warlock = hero.findNearest(hero.findByType("warlock"));
+			if(warlock){
+				if(friend.type!="paladin"){
+					while(warlock.health>0){
+						hero.command(friend,"attack",warlock);
+					}
+				}
+			}
+			else{
+				if(friend.type != "paladin"&&nearest&&nearest.type!="door"){
+				hero.command(friend,"attack",nearest);
+				}
+				else if(friend.type!="paladin"&&hero.findNearestEnemy()&&hero.findNearestEnemy().type!="door"){
+					hero.command(friend,"attack",hero.findNearestEnemy());
+				}
+				else if (friend.type != "paladin"){
+					hero.command(friend,"defend",hero);
+				}
+		    }
+	    }
+	}
+}
+
+function lowFriend(){
+	var friends = hero.findFriends();
+	var lowHP = 99999;
+	var lowFr = null;
+	if(friends){
+		for (var i=0;i<friends.length;i++){
+			var friend = friends[i];
+			if (friend.health<friend.maxHealth&&friend.health<lowHP){
+				lowHP = friend.health;
+				lowFr = friend;
+			}
+		}
+	}
+	return lowFr;
+}
+
+function commandDefHero(){
+	var friends = hero.findFriends();
+	if(friends){
+		for(var i = 0;i<friends.length;i++){
+			if(friends[i].type!="paladin"){
+				hero.command(friends[i],"defend",hero);
+			}
+		}
+	}
+}
+
+function commandPaladinDefHero(){
+	var friends = hero.findFriends();
+	if(friends){
+		for(var i=0;i<friends.length;i++){
+			var friend = friends[i];
+			if(friend.type == "paladin"){
+				if(lowFriend()){
+					hero.command(friend,"cast","heal",lowFriend());
+				}
+				else if(hero.health<hero.maxHealth){
+					hero.command(friend,"cast","heal",hero);
+				}
+				else {
+					hero.command(friend,"defend",hero);
+				}
+			}
+		}
+	}
+}
+
+function commandPaladin(){
+	var friends = hero.findFriends();
+	if(friends){
+		for (var i=0;i<friends.length;i++){
+			var friend = friends[i];
+			var nearest = friend.findNearestEnemy();
+			if(friend.type == "paladin"){
+				if(lowFriend()){
+					hero.command(friend,"cast","heal",lowFriend());
+				}
+				else if(hero.health<hero.maxHealth){
+					hero.command(friend,"cast","heal",hero);
+				}
+				else if(nearest&&hero.findNearest(hero.findByType("warlock"))){
+					hero.command(friend, "attack",hero.findNearest(hero.findByType("warlock")));
+				}
+				else if(nearest&&nearest.type!="door"){
+					hero.command(friend,"attack",nearest);
+				}
+				else if(hero.findNearestEnemy()&&hero.findNearestEnemy().type!="door"){
+					hero.command(friend,"attack",hero.findNearestEnemy());
+				}
+				else {
+					hero.command(friend,"defend",hero);
+				}
+			}
+		}
+	}
+}
+
+function heroAttackCat(){
+	var nearestCat = hero.findNearest(hero.findByType("catapult"));
+	var nearestDoor = hero.findNearest(hero.findByType("door"));
+	if(nearestCat){
+		while(nearestCat.health>0){
+			hero.attack(nearestCat);
+		}
+	}
+}
+
+function heroAttack(){
+	var nearestHeroEnemy = hero.findNearest(hero.findEnemies());
+	var flag = hero.findFlag("green");
+	var chain = hero.canCast("chain-lightning");
+	var bash = hero.isReady("bash");
+	var stomp = hero.isReady("stomp");
+	var thr = hero.isReady("throw");
+	var hurl = hero.isReady("hurl");
+	if(nearestHeroEnemy&&!flag&&nearestHeroEnemy.type!="door"&&nearestHeroEnemy.type!="tower"){
+		var distance = hero.distanceTo(nearestHeroEnemy);
+		while(nearestHeroEnemy.health>0){
+			if(chain&&distance<=30){
+				hero.cast("chain-lightning",nearestHeroEnemy);
+			}
+			else if (stomp&&distance<5){
+				hero.stomp();
+			}
+			else if(hurl&&distance<5){
+				hero.hurl(nearestHeroEnemy);
+			}
+			else if(bash&&distance<5){
+				hero.bash(nearestHeroEnemy);
+			}
+			else hero.attack(nearestHeroEnemy);
+		}
+	}
+	else if(nearestHeroEnemy&&!flag&&nearestHeroEnemy.type == "tower"){
+	hero.attack(nearestHeroEnemy);
+	}
+}
+
+function heroAttackWarlock(){
+	var nearestHeroEnemy = hero.findNearest(hero.findEnemies());
+	var flag = hero.findFlag("green");
+	var chain = hero.canCast("chain-lightning");
+	var bash = hero.isReady("bash");
+	var stomp = hero.isReady("stomp");
+	var thr = hero.isReady("throw");
+	var hurl = hero.isReady("hurl");
+	var warlock = hero.findNearest(hero.findByType("warlock"));
+	if(warlock){
+		var distance = hero.distanceTo(warlock);
+		while(warlock.health>0){
+			if(chain&&distance<=30){
+				hero.cast("chain-lightning",warlock);
+			}
+			else if(stomp&&distance<5){
+				hero.stomp();
+			}
+			else if(hurl&&distance<5){
+				hero.hurl(warlock);
+			}
+			else if(bash&&distance<5){
+				hero.bash(warlock);
+			}
+			else hero.attack(warlock);
+		}		
+	}
+	else heroAttack();
+}
+
+function flags(){
+	var flagGreen = hero.findFlag("green");
+	var flagBlack = hero.findFlag("black");
+	var flagViolet = hero.findFlag("violet");
+	if(flagGreen) hero.pickUpFlag(flagGreen);
+	else if(flagBlack){
+		var door = hero.findNearest(hero.findByType("door"));
+		if(door) hero.attack(door);
+		hero.pickUpFlag(flagBlack);
+	}
+	else if(flagViolet){
+		var invis = hero.canCast("invisibility");
+		if(invis){
+			hero.cast("invisibility",hero);
+			hero.move(flagViolet.pos);
+			var warlock = hero.findNearest(hero.findByType("warlock"));
+			if(warlock) hero.hurl(warlock);
+			else hero.pickUpFlag(flagViolet);
+		}
+	}
+}
+
+function stages(){
+	var cats = hero.findNearest(hero.findByType("catapult"));
+	var towers = hero.findNearest(hero.findByType("tower"));
+	var warlock = hero.findNearest(hero.findByType("warlock"));
+	if(cats) var stage = 1;
+	else if (!cats&&hero.pos.x<170) stage = 2;
+	else if(hero.pos.x>170) stage = 3;
+	return stage;
+}
+
+function summon(){
+	if(hero.gold>=hero.costOf("griffin-rider")) hero.summon("griffin-rider");
+}
+while(true){
+	if(stages() == 1){
+		flags();
+		commandDef({x:0,y:37});
+		heroAttackCat();
+		hero.moveXY(93,34);		
+	}
+	else if (stages() == 2){
+		flags();
+		//commandPaladin();
+		heroAttack();
+	}
+	else if(stages() == 3){
+		flags();
+		summon();
+		commandPaladinDefHero();
+		commandDefHero();
+		heroAttackWarlock();
+	}
+}
